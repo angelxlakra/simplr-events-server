@@ -1,70 +1,51 @@
 const express = require('express');
 const { verifyToken } = require('../middleware/auth'); // Add this line
 const router = express.Router();
+const User = require('../models/User');
 
-router.post('/create', verifyToken, async (req, res) => {
-	try {
-		// Input validation
-		if (
-			!req.body.name ||
-			!req.body.email ||
-			!req.body.address ||
-			!req.body.sessionKeyString
-		) {
-			return res.status(400).json({ message: 'All fields are required' });
-		}
 
-		// Email format validation
-		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-		if (!emailRegex.test(req.body.email)) {
-			return res.status(400).json({ message: 'Invalid email format' });
-		}
+router.post('/create', async (req, res) => {
+  try {
+    const email = req.body.email;
+    const existingUser = await User.findOne({ email: email.toLowerCase() });
 
-		const user = new User({
-			name: req.body.name.trim(),
-			email: req.body.email.toLowerCase(),
-			address: req.body.address.trim(),
-			sessionKeyString: req.body.sessionKeyString,
-		});
+    if (existingUser) {
+      return res.json({
+        exists: true,
+        user: existingUser
+      });
+    }
 
-		const savedUser = await user.save();
-		res.status(201).json(savedUser);
-	} catch (error) {
-		res.status(500).json({
-			message: 'Error creating user',
-			error: error.message,
-		});
-	}
-});
+    // Input validation
+    if (!req.body.email || !req.body.name || !req.body.address) {
+      return res.status(400).json({ message: 'All fields are required' });
+    }
 
-router.get('/exists', async (req, res) => {
-	try {
-		const { email } = req.query;
+    // Email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ message: 'Invalid email format' });
+    }
 
-		if (!email) {
-			return res.status(400).json({ message: 'Email is required' });
-		}
+    const user = new User({
+      name: req.body.name.trim(),
+      email: email.toLowerCase(),
+      address: req.body.address.trim(),
+      sessionKeyString: req.body.sessionKeyString ?? "",
+    });
 
-		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-		if (!emailRegex.test(email)) {
-			return res.status(400).json({ message: 'Invalid email format' });
-		}
-
-		const user = await User.findOne({ email: email.toLowerCase() });
-		if (!user) {
-			return res.json({ exists: false });
-		}
-
-		res.json({
-			exists: true,
-			user: user,
-		});
-	} catch (error) {
-		res.status(500).json({
-			message: 'Error checking user existence',
-			error: error.message,
-		});
-	}
+    const savedUser = await user.save();
+    res.status(201).json({
+      exists: false,
+      user: savedUser
+    });
+  } catch (error) {
+    console.log({error})
+    res.status(500).json({
+      message: 'Error creating/checking user',
+      error: error.message,
+    });
+  }
 });
 
 router.put('/session-key', verifyToken, async (req, res) => {
