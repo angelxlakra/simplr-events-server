@@ -48,7 +48,7 @@ router.post('/create', async (req, res) => {
   }
 });
 
-router.put('/session-key', verifyToken, async (req, res) => {
+router.put('/session-key', async (req, res) => {
 	try {
 		const { email, sessionKeyString } = req.body;
 

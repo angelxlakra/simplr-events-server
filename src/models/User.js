@@ -17,7 +17,6 @@ const userSchema = new mongoose.Schema({
 	},
 	sessionKeyString: {
 		type: String,
-		unique: true,
 	},
 });
 

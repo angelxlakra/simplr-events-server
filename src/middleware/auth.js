@@ -18,4 +18,20 @@ const verifyToken = (req, res, next) => {
 	}
 };
 
-module.exports = { verifyToken };
+const validateRequest = (req, res, next) => {
+  const customAuthHeader = req.headers['x-custom-auth'];
+
+  // Define allowed auth tokens
+  const validTokens = {
+    'simplr-events-website': true,
+    'postman-temporary-token': true,
+  };
+
+  if (!customAuthHeader || !validTokens[customAuthHeader]) {
+    return res.status(403).json({error: 'Unauthorized request origin'});
+  }
+
+  next();
+}
+
+module.exports = { verifyToken, validateRequest };
