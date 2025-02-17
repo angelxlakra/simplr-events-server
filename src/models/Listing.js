@@ -19,6 +19,21 @@ const listingSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    isResolved: {
+      type: Boolean,
+      default: false
+    },
+    disputed: {
+      type: Boolean,
+      default: false,
+    },
+    disputeReason: {
+      type: String,
+    },
+    buyerId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    }
 	},
 	{ timestamps: true }
 );

@@ -7,6 +7,10 @@ const { TICKET_DATA, ESCROW_DATA } = require('../gql/queries/ticket.query');
 const Event = require('../models/Event');
 const Email = require('../models/Email');
 const { EmailService } = require('../services/EmailService');
+const {
+	EXAMPLE_LISTINGS,
+	EXAMPLE_DATA,
+} = require('../gql/queries/listing-examples.query');
 const router = express.Router();
 
 router.post('/create', async (req, res) => {
@@ -44,6 +48,63 @@ router.post('/create', async (req, res) => {
 	}
 });
 
+router.get('/examples', async (req, res) => {
+	const network = req.query.network;
+	const subgraph_url = getSubgraphUrl(network);
+
+	const response = await axios.post(subgraph_url, {
+		query: EXAMPLE_LISTINGS,
+		variables: {},
+	});
+
+	const listings = response.data.data.listings.items;
+
+	const highestPrice = listings[listings.length - 1];
+	const lowestPrice = listings[0];
+	const averagePrice = listings[Math.floor(listings.length / 2)];
+
+  const listing_examples = [lowestPrice.ticketId, averagePrice.ticketId, highestPrice.ticketId];
+
+	const examples_response = await axios.post(subgraph_url, {
+		query: EXAMPLE_DATA,
+		variables: { where: { ticketId_in: listing_examples } },
+	});
+
+  const examples_list = examples_response.data.data.listings.items
+
+  // Extract eventIds from tickets
+  const eventIds = examples_list.map((ticket) => ticket.eventId.split('-')[1]);
+
+  // Fetch events from database with case-insensitive search
+  const events = await Event.find({
+    contractAddress: {
+      $in: eventIds.map((id) => new RegExp(`^${id}$`, 'i')),
+    },
+  });
+
+  // Create a map for quick event lookup (convert to lowercase for comparison)
+  const eventMap = events.reduce((acc, event) => {
+    acc[event.contractAddress.toLowerCase()] = event;
+    return acc;
+  }, {});
+
+    const examples = examples_list.map(example => {
+    return ({
+      price: example.price,
+      signature: "",
+      ticket: {
+        _id: example.ticket.id,
+        event: eventMap[example.eventId.split('-')[1].toLowerCase()],
+        tokenId: example.ticket?.tokenMetadata.tokenId,
+        seat: example.ticket?.seat,
+      },
+  })});
+
+	res.json({
+		examples
+	});
+});
+
 router.get('/:ticketId', async (req, res) => {
 	try {
 		const ticketId = req.params.ticketId;
@@ -61,10 +122,12 @@ router.get('/:ticketId', async (req, res) => {
 					ticketId_contains: ticketId,
 				},
 			},
-    });
+		});
 
-    console.log({ticket: ticket_response.data, escrow: escrow_response.data});
-
+		console.log({
+			ticket: ticket_response.data,
+			escrow: escrow_response.data,
+		});
 
 		const escrow = escrow_response.data.data.escrows.items[0];
 
@@ -76,9 +139,11 @@ router.get('/:ticketId', async (req, res) => {
 		});
 		const ticket = ticket_response.data.data?.ticket;
 
-    res.json({
+		res.json({
 			order: {
-				price: ticket?.listed?.items?.[0]?.price ?? ticket?.escrow?.items?.[0]?.price,
+				price:
+					ticket?.listed?.items?.[0]?.price ??
+					ticket?.escrow?.items?.[0]?.price,
 				signature: listing?.signature,
 				ticket: {
 					_id: ticketId,
@@ -118,50 +183,66 @@ router.post('/sold', async (req, res) => {
 		// 4
 		// "expiryHours"
 
-		const listing = await Listing.findOne({ ticketId: data.ticketId?.toLowerCase() });
+		const listing = await Listing.findOne({
+			ticketId: data.ticketId?.toLowerCase(),
+		});
 		const event = await Event.findById(data.eventId);
 		const email = await Email.findOne({ event: event._id });
-    const seller = await User.findById(listing?.userId);
-    const buyer = await User.findOne({ address: data.buyerAddress });
+		const seller = await User.findById(listing?.userId);
+		const buyer = await User.findOne({ address: data.buyerAddress });
 
-    console.log({email});
+		console.log({ email });
 
+		// Variables for email template
+		const variables = {
+			sellerName: seller.name,
+			tokenId: listing.ticketId.split('-')[2],
+			buyerEmailId: buyer.email,
+			buyerName: buyer.name,
+			expiryHours: Number(data.expiryHours) ?? 48,
+		};
 
-    // Variables for email template
-    const variables = {
-      sellerName: seller.name,
-      tokenId: listing.ticketId.split('-')[2],
-      buyerEmailId: buyer.email,
-      buyerName: buyer.name,
-      expiryHours: Number(data.expiryHours) ?? 48,
-    }
+		// Generate emailTemplate
 
-    // Generate emailTemplate
+		let htmlBody = email.bodyTemplateHtml;
+		let stringBody = email.bodyTemplateText;
+		email.requiredVariables.forEach((variable) => {
+			const regex = new RegExp(`{{${variable}}}`, 'g');
+			const value = variables[variable];
 
-    let htmlBody = email.bodyTemplateHtml;
-    let stringBody = email.bodyTemplateText;
-    email.requiredVariables.forEach(variable => {
-      const regex = new RegExp(`{{${variable}}}`, 'g');
-      const value = variables[variable]
+			console.log({ variable, value, regex });
 
-      console.log({variable, value, regex});
+			htmlBody = htmlBody.replace(regex, variables[variable]);
 
-      htmlBody = htmlBody.replace(regex, variables[variable]);
+			stringBody = stringBody.replace(regex, variables[variable]);
+		});
 
-      stringBody = stringBody.replace(regex, variables[variable]);
-    });
+		const emailService = new EmailService();
 
+		const result = await emailService.sendEmail(
+			seller.email,
+			email.subject,
+			htmlBody,
+			stringBody
+		);
 
-    const emailService = new EmailService();
-
-    const result = await emailService.sendEmail(seller.email, email.subject, htmlBody, stringBody);
-
-
-    res.json(result);
-
+		res.json(result);
 	} catch (error) {
 		res.status(500).json({ message: error.message });
 	}
 });
+
+// router.post("/dispute", async (req, res) => {
+//   const data = req.body;
+
+//   // Validate
+//   if (!data.reason || !data.buyerId || !data.sellerId || !ticketId) {
+//     return res.status(400).json({ message: 'All fields are required' });
+//   }
+
+//   try {
+
+//   } catch
+// })
 
 module.exports = router;
