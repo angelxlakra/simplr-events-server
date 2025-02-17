@@ -17,10 +17,10 @@ const TICKET_DATA = `query Ticket($ticketId: String!) {
       }
     }
     seat
-        ticketSerialNumberHash
-        tokenURI
-        tokenMetadata
-        owner {address}
+    ticketSerialNumberHash
+    tokenURI
+    tokenMetadata
+    owner {address}
   }
 }`;
 

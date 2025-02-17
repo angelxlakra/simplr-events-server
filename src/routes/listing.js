@@ -78,7 +78,7 @@ router.get('/:ticketId', async (req, res) => {
 
 		res.json({
 			order: {
-				price: ticket?.listed?.items[0].price,
+				price: ticket?.listed?.items?.[0]?.price,
 				signature: listing?.signature,
 				ticket: {
 					_id: ticketId,
@@ -90,7 +90,7 @@ router.get('/:ticketId', async (req, res) => {
 			escrow: {
 				isEscrow: !!escrow,
 				buyer: escrow?.buyer?.address ?? '',
-				seller: escrow?.seller?.address ?? ticket?.owner?.address ?? '',
+				seller: escrow?.seller?.address ?? '',
 				isDisputed: escrow?.isDisputed ?? false,
 				isResolved: escrow?.isResolved ?? false,
 			},
