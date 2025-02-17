@@ -61,9 +61,9 @@ router.get('/', async (req, res) => {
 					price: escrow.ticket.listings.items[0].price,
 					deadline: escrow.ticket.listings.items[0].deadline,
 				})
-      );
+			);
 
-      userTickets.escrow = [...escrow_tickets]
+			userTickets.escrow = [...escrow_tickets];
 
 			user_tickets.forEach((ticket) => {
 				const isListed = !!ticket.listed.items[0];

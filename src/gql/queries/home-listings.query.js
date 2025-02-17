@@ -37,6 +37,7 @@ const HOME_LISTINGS = `query User($userId: String!) {
       deadline
       buyerId
       ticket {
+        id
         seat
         tokenMetadata
         ticketSerialNumberHash
