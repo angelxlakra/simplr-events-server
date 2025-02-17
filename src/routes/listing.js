@@ -67,7 +67,7 @@ router.get('/examples', async (req, res) => {
 
 	const examples_response = await axios.post(subgraph_url, {
 		query: EXAMPLE_DATA,
-		variables: { where: { ticketId_in: listing_examples } },
+		variables: { where: { ticketId_in: listing_examples, state_in: ["LISTED"] } },
 	});
 
   const examples_list = examples_response.data.data.listings.items
