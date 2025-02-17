@@ -5,7 +5,7 @@ const NFTMetadata = require('../models/NFTMetadata');
 const { verifyToken } = require('../middleware/auth');
 
 // Create a new NFT metadata
-router.post('/', verifyToken, async (req, res) => {
+router.post('/', async (req, res) => {
 	try {
 		const requiredFields = ['event', 'tokenId', 'seat'];
 

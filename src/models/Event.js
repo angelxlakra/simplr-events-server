@@ -52,7 +52,12 @@ const eventSchema = new mongoose.Schema(
 			{
 				type: String,
 			},
-		],
+    ],
+    verificationType: {
+      type: String,
+      required: true,
+      default: "default"
+    }
 	},
 	{
 		timestamps: true,
