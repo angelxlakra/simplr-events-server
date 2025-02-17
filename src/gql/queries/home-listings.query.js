@@ -45,7 +45,7 @@ const HOME_LISTINGS = `query User($userId: String!) {
       }
     }
   }
-    escrows(where: {buyerId_contains: $userId AND: [ {
+    escrows(where: {OR: [{sellerId_contains: $userId}, {buyerId_contains: $userId}] AND: [ {
      isResolved: false
   }]}) {
     items {
