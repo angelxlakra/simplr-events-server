@@ -76,9 +76,9 @@ router.get('/:ticketId', async (req, res) => {
 		});
 		const ticket = ticket_response.data.data?.ticket;
 
-		res.json({
+    res.json({
 			order: {
-				price: ticket?.listed?.items?.[0]?.price,
+				price: ticket?.listed?.items?.[0]?.price ?? ticket?.escrow?.items?.[0]?.price,
 				signature: listing?.signature,
 				ticket: {
 					_id: ticketId,
