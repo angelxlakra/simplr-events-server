@@ -5,19 +5,9 @@ const User = require('../models/User');
 const Event = require('../models/Event');
 const { USER_TICKETS_QUERY } = require('../gql/queries/user-tickets.query');
 const { default: axios } = require('axios');
+const { getSubgraphUrl } = require('../utils/subgraph');
 
-const getSubgraphUrl = (network) => {
-	switch (network) {
-		case 'base':
-			return 'https://indexer-base-mainnet-production.up.railway.app';
-		case 'arbitrum':
-			return 'https://mainnet-simplr-events-indexer.up.railway.app';
-		case 'arbitrumSepolia':
-			return 'simplr-events-indexer-production.up.railway.app';
-		default:
-			return '';
-	}
-};
+
 
 router.post('/create', async (req, res) => {
 	try {

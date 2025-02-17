@@ -1,0 +1,49 @@
+const HOME_LISTINGS = `query User($userId: String!) {
+  user(id: $userId) {
+    ticketsOwned {
+      items {
+        id
+        eventId
+        listed: listings(where: {state_in: [LISTED]}) {
+          items {
+            state
+            price
+            deadline
+          }
+        }
+        escrow: listings(where: {state_in: [PURCHASED]}) {
+          items {
+            state
+            price
+            deadline
+          }
+        }
+        seat
+        ticketSerialNumberHash
+        tokenURI
+        tokenMetadata
+      }
+    }
+  }
+  listed: listings(where: {state_in: [LISTED]}) {
+    items {
+      id
+      price
+      seller {
+        address
+      }
+      state
+      eventId
+      deadline
+      buyerId
+      ticket {
+        seat
+        tokenMetadata
+        ticketSerialNumberHash
+        tokenURI
+      }
+    }
+  }
+}`
+
+module.exports = { HOME_LISTINGS };
