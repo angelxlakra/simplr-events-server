@@ -44,6 +44,34 @@ const HOME_LISTINGS = `query User($userId: String!) {
       }
     }
   }
+    escrows(where: {buyerId_contains: $userId AND: [ {
+     isResolved: false
+  }]}) {
+    items {
+      buyer {
+        address
+      }
+      seller {
+        address
+      }
+      eventId
+      fundsLocked
+      isDisputed
+      isResolved
+      ticket {
+        seat
+        ticketSerialNumberHash
+        tokenMetadata
+        tokenURI
+        listings {
+          items {
+            price
+          }
+        }
+        id
+      }
+    }
+  }
 }`
 
 module.exports = { HOME_LISTINGS };
