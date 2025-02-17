@@ -110,7 +110,7 @@ router.get('/:address/tickets', async (req, res) => {
 	const response = await axios.post(subgraph_url, {
 		query: USER_TICKETS_QUERY,
 		variables: {
-			userId: `user-${address}`,
+			userId: `user-${address.toLowerCase()}`,
 		},
 	});
 
