@@ -33,6 +33,11 @@ const listingSchema = new mongoose.Schema(
     buyerId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User'
+    },
+    disputeFrom: {
+      type:
+    String,
+    enum: ['Buyer', 'Seller']
     }
 	},
 	{ timestamps: true }

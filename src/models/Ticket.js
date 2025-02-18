@@ -12,9 +12,6 @@ const ticketSchema = new mongoose.Schema(
 			ref: 'User',
 			required: true,
 		},
-		ticketData: {
-			type: String,
-		},
 		orderNumber: {
 			type: String,
 			required: true,

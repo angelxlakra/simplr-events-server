@@ -10,6 +10,7 @@ const userRoutes = require('./routes/user');
 const listingRoutes = require('./routes/listing');
 const marketplaceRoutes = require('./routes/marketplace');
 const nftMetadataRoutes = require('./routes/nftMetadata');
+const ticketRoutes = require('./routes/ticket')
 const { validateRequest } = require('./middleware/auth');
 
 const app = express();
@@ -29,6 +30,7 @@ app.use('/user', userRoutes);
 app.use('/nft-metadata', nftMetadataRoutes);
 app.use('/listing', listingRoutes);
 app.use('/marketplace', marketplaceRoutes);
+app.use('/ticket', ticketRoutes);
 
 // Connect to database and start server
 const PORT = process.env.PORT || 3000;
