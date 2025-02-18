@@ -20,14 +20,16 @@ app.use(corsConfig);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(requestLogger); // Add logger middleware
+
+
+app.use('/nft-metadata', nftMetadataRoutes);
+app.use('/health', healthRoutes);
 app.use(validateRequest);
 
 // Routes
-app.use('/health', healthRoutes);
+app.use('/user', userRoutes);
 app.use('/events', eventRoutes);
 app.use('/auth', authRoutes);
-app.use('/user', userRoutes);
-app.use('/nft-metadata', nftMetadataRoutes);
 app.use('/listing', listingRoutes);
 app.use('/marketplace', marketplaceRoutes);
 app.use('/ticket', ticketRoutes);
