@@ -67,8 +67,7 @@ router.get('/', async (req, res) => {
 			userTickets.escrow = [...escrow_tickets];
 
 			user_tickets.forEach((ticket) => {
-				const isListed = !!ticket.listed.items[0];
-				const isEscrow = !!ticket.escrow.items[0];
+				const isListed = !!ticket?.listed?.items[0];
 
 				if (isListed) {
 					userTickets.selling.push({
@@ -77,20 +76,8 @@ router.get('/', async (req, res) => {
 						// orderNumber: ticket.orderNumber || '',
 						tokenId: ticket.tokenMetadata.tokenId || '',
 						seat: ticket.seat || '',
-						price: ticket.listed.items[0].price,
-						deadline: ticket.listed.items[0].deadline,
-					});
-					return;
-				}
-				if (isEscrow) {
-					userTickets.escrow.push({
-						_id: ticket.id,
-						event: ticket.eventId.split('-')[1].toLowerCase(),
-						// orderNumber: ticket.orderNumber || '',
-						tokenId: ticket.tokenMetadata.tokenId || '',
-						seat: ticket.seat || '',
-						price: ticket.escrow.items[0].price,
-						deadline: ticket.escrow.items[0].deadline,
+						price: ticket?.listed?.items[0].price,
+						deadline: ticket?.listed?.items[0].deadline,
 					});
 					return;
 				}

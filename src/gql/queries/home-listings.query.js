@@ -11,13 +11,6 @@ const HOME_LISTINGS = `query User($userId: String!) {
             deadline
           }
         }
-        escrow: listings(where: {state_in: [PURCHASED]}) {
-          items {
-            state
-            price
-            deadline
-          }
-        }
         seat
         ticketSerialNumberHash
         tokenURI
