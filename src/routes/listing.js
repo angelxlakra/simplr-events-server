@@ -156,7 +156,7 @@ router.get('/:ticketId', async (req, res) => {
 			escrow: {
 				isEscrow: !!escrow,
 				buyer: escrow?.buyer?.address ?? '',
-				seller: escrow?.seller?.address ?? '',
+				seller: escrow?.seller?.address ?? ticket.owner.address ?? '',
 				isDisputed: escrow?.isDisputed ?? false,
 				isResolved: escrow?.isResolved ?? false,
 			},
