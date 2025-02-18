@@ -6,6 +6,7 @@ const corsoptions = {
     'https://postman-requests.com',
     'http://localhost:3000',
   ],
+  
   methods: ['POST', 'PUT'],
   allowedHeaders: ['Content-Type', 'X-Custom-Auth'],
   credentials: true

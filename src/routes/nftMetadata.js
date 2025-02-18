@@ -3,6 +3,7 @@ const router = express.Router();
 const Event = require('../models/Event');
 const NFTMetadata = require('../models/NFTMetadata');
 const { verifyToken } = require('../middleware/auth');
+const cors = require('../config/cors');
 
 // Create a new NFT metadata
 router.post('/', async (req, res) => {
@@ -64,7 +65,7 @@ router.post('/', async (req, res) => {
 });
 
 // Get the metadata for a specific NFT
-router.get('/:eventContract/:tokenId', async (req, res) => {
+router.get('/:eventContract/:tokenId', cors(), async (req, res) => {
 	const { eventContract, tokenId } = req.params;
 
 	try {

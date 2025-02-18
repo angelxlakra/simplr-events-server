@@ -114,7 +114,7 @@ router.get('/:address/tickets', async (req, res) => {
 		},
 	});
 
-	const tickets = response?.data?.data?.user?.ticketsOwned?.items.filter(ticket => !ticket.listings.items[0].price) ?? [];
+	const tickets = response?.data?.data?.user?.ticketsOwned?.items.filter(ticket => !ticket.listings?.items?.[0]?.price) ?? [];
 
 	// Extract eventIds from tickets
 	const eventIds = tickets.map(ticket => ticket.eventId.split('-')[1]);
