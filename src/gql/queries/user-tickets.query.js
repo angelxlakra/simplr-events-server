@@ -10,6 +10,11 @@ const USER_TICKETS_QUERY = `
 					ticketSerialNumberHash
 					tokenMetadata
 					tokenURI
+          listings(where: {state_in: [LISTED]}) {
+            items {
+              price
+            }
+          }
 				}
 			}
 		}
