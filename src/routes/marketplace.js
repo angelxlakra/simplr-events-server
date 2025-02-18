@@ -29,7 +29,8 @@ router.get('/', async (req, res) => {
 
 		const tickets = [
 			...(gql_response?.data?.data?.user?.ticketsOwned?.items ?? []),
-			...(gql_response?.data?.data?.listed?.items ?? []),
+      ...(gql_response?.data?.data?.listed?.items ?? []),
+      ...(gql_response?.data?.data?.escrows?.items ?? []),
 		];
 
 		// Extract eventIds from tickets
