@@ -3,7 +3,7 @@ const router = express.Router();
 const Event = require('../models/Event');
 const NFTMetadata = require('../models/NFTMetadata');
 const { verifyToken } = require('../middleware/auth');
-const cors = require('../config/cors');
+const cors = require('cors');
 
 // Create a new NFT metadata
 router.post('/', async (req, res) => {
