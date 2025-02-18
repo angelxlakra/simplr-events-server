@@ -23,13 +23,13 @@ router.get('/', async (req, res) => {
 		const gql_response = await axios.post(subgraphUrl, {
 			query: HOME_LISTINGS,
 			variables: {
-				userId: `user-${account}`,
+				userId: `user-${account ?? "0x"}`,
 			},
 		});
 
 		const tickets = [
-			...(gql_response.data.data.user.ticketsOwned.items ?? []),
-			...(gql_response.data.data.listed.items ?? []),
+			...(gql_response?.data?.data?.user?.ticketsOwned?.items ?? []),
+			...(gql_response?.data?.data?.listed?.items ?? []),
 		];
 
 		// Extract eventIds from tickets
@@ -50,9 +50,9 @@ router.get('/', async (req, res) => {
 
 		if (!!account) {
 			const user_tickets =
-				gql_response.data.data.user.ticketsOwned.items ?? [];
+				gql_response?.data?.data?.user?.ticketsOwned?.items ?? [];
 
-			const escrow_tickets = gql_response.data.data.escrows.items.map(
+			const escrow_tickets = (gql_response?.data?.data?.escrows?.items ?? []).map(
 				(escrow) => ({
 					_id: escrow.ticket.id,
 					event: escrow.eventId.split('-')[1].toLowerCase(),
