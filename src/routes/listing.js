@@ -64,7 +64,7 @@ router.get('/examples', async (req, res) => {
 	const lowestPrice = listings[0];
 	const averagePrice = listings[Math.floor(listings.length / 2)];
 
-  const listing_examples = [lowestPrice.ticketId, averagePrice.ticketId, highestPrice.ticketId];
+  const listing_examples = [lowestPrice?.ticketId, averagePrice?.ticketId, highestPrice?.ticketId];
 
 	const examples_response = await axios.post(subgraph_url, {
 		query: EXAMPLE_DATA,

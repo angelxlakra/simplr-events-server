@@ -23,14 +23,14 @@ router.get('/', async (req, res) => {
 		const gql_response = await axios.post(subgraphUrl, {
 			query: HOME_LISTINGS,
 			variables: {
-				userId: `user-${account ?? "0x"}`,
+				userId: `user-${account ?? '0x'}`,
 			},
 		});
 
 		const tickets = [
 			...(gql_response?.data?.data?.user?.ticketsOwned?.items ?? []),
-      ...(gql_response?.data?.data?.listed?.items ?? []),
-      ...(gql_response?.data?.data?.escrows?.items ?? []),
+			...(gql_response?.data?.data?.listed?.items ?? []),
+			...(gql_response?.data?.data?.escrows?.items ?? []),
 		];
 
 		// Extract eventIds from tickets
@@ -53,16 +53,18 @@ router.get('/', async (req, res) => {
 			const user_tickets =
 				gql_response?.data?.data?.user?.ticketsOwned?.items ?? [];
 
-			const escrow_tickets = (gql_response?.data?.data?.escrows?.items ?? []).map(
-				(escrow) => ({
+			const escrow_tickets = (
+				gql_response?.data?.data?.escrows?.items ?? []
+			).map((escrow) => ({
+				ticket: {
 					_id: escrow.ticket.id,
 					event: escrow.eventId.split('-')[1].toLowerCase(),
 					tokenId: escrow.ticket.tokenMetadata.tokenId || '',
-					seat: escrow.ticket.seat || '',
-					price: escrow.ticket.listings.items[0].price,
-					deadline: escrow.ticket.listings.items[0].deadline,
-				})
-			);
+					seat: escrow.ticket.seat,
+				},
+				price: escrow.ticket?.listings?.items[0].price,
+				signature: '',
+			}));
 
 			userTickets.escrow = [...escrow_tickets];
 
@@ -71,24 +73,26 @@ router.get('/', async (req, res) => {
 
 				if (isListed) {
 					userTickets.selling.push({
-						_id: ticket.id,
-						event: ticket.eventId.split('-')[1].toLowerCase(),
-						// orderNumber: ticket.orderNumber || '',
-						tokenId: ticket.tokenMetadata.tokenId || '',
-						seat: ticket.seat || '',
+						ticket: {
+							_id: ticket.id,
+							event: ticket.eventId.split('-')[1].toLowerCase(),
+							tokenId: ticket.tokenMetadata.tokenId || '',
+							seat: ticket.seat,
+						},
 						price: ticket?.listed?.items[0].price,
-						deadline: ticket?.listed?.items[0].deadline,
+						signature: '',
 					});
 					return;
 				}
 				userTickets.owned.push({
-					_id: ticket.id,
-					event: ticket.eventId.split('-')[1].toLowerCase(),
-					// orderNumber: ticket.orderNumber || '',
-					tokenId: ticket.tokenMetadata.tokenId || '',
-					seat: ticket.seat || '',
+					ticket: {
+						_id: ticket.id,
+						event: ticket.eventId.split('-')[1].toLowerCase(),
+						tokenId: ticket.tokenMetadata.tokenId || '',
+						seat: ticket.seat,
+					},
 					price: 'N/A',
-					deadline: '',
+					signature: '',
 				});
 			});
 		}
@@ -99,35 +103,43 @@ router.get('/', async (req, res) => {
 
 		listedTickets.forEach((listing) => {
 			if (
+				listing.seller.address.toLowerCase() === account.toLowerCase()
+			) {
+				return;
+			}
+			if (
 				!marketplaceTickets[listing.eventId.split('-')[1].toLowerCase()]
 			) {
 				marketplaceTickets[
 					listing.eventId.split('-')[1].toLowerCase()
 				] = [];
 			}
-			if (
-				listing.seller.address.toLowerCase() === account.toLowerCase()
-			) {
-				return;
-			}
 			marketplaceTickets[
 				listing.eventId.split('-')[1].toLowerCase()
 			].push({
-				_id: listing.ticket.id,
-				event: listing.eventId.split('-')[1].toLowerCase(),
-				// orderNumber: ticket.orderNumber || '',
-				tokenId: listing.ticket.tokenMetadata.tokenId || '',
-				seat: listing.ticket.seat || '',
+				ticket: {
+					_id: listing.ticket.id,
+					event: listing.eventId.split('-')[1].toLowerCase(),
+					tokenId: listing.ticket.tokenMetadata.tockenId,
+					seat: listing.ticket.seat,
+				},
 				price: listing.price,
-				deadline: listing.deadline,
+				signature: '',
 			});
-		});
+    });
 
-		res.json({
+    console.log(JSON.stringify({
 			userTickets,
 			marketplaceTickets,
 			eventMap,
-		});
+		}));
+
+
+    res.json(JSON.stringify({
+        userTickets,
+        marketplaceTickets,
+        eventMap,
+    }));
 	} catch (error) {
 		console.log({ error });
 		res.status(500).json({
