@@ -120,15 +120,12 @@ router.get('/:ticketId', async (req, res) => {
 			query: ESCROW_DATA,
 			variables: {
 				where: {
-					ticketId_contains: ticketId,
+          ticketId_contains: ticketId,
+          isResolved: false
 				},
 			},
 		});
 
-		console.log({
-			ticket: ticket_response.data,
-			escrow: escrow_response.data,
-		});
 
 		const escrow = escrow_response.data.data.escrows.items[0];
 
@@ -140,11 +137,10 @@ router.get('/:ticketId', async (req, res) => {
 		});
 		const ticket = ticket_response.data.data?.ticket;
 
-		res.json({
+    res.json({
+
 			order: {
-				price:
-					ticket?.listed?.items?.[0]?.price ??
-					ticket?.escrow?.items?.[0]?.price,
+				price: listing.price,
 				signature: listing?.signature,
 				ticket: {
 					_id: ticketId,

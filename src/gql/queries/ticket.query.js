@@ -9,13 +9,6 @@ const TICKET_DATA = `query Ticket($ticketId: String!) {
             deadline
       }
     }
-    escrow: listings(where: {state_in: [PURCHASED]}) {
-      items {
-        state
-            price
-            deadline
-      }
-    }
     seat
     ticketSerialNumberHash
     tokenURI
